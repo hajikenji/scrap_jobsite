@@ -24,7 +24,11 @@ CREDENTIALS_PATH = "credentials.json".freeze
 # created automatically when the authorization flow completes for the first
 # time.
 TOKEN_PATH = "token.yaml".freeze
-SCOPE = Google::Apis::SheetsV4::AUTH_SPREADSHEETS_READONLY
+SCOPE = Google::Apis::SheetsV4::AUTH_SPREADSHEETS
+
+# デフォルトは0で15分でタイムアウトになるとされる。スクレイピング時間が長いと切れるため設定。
+# 詳しくは https://github.com/fog/fog-google/issues/323
+Google::Apis::RequestOptions.default.retries = 5
 ##
 # Ensure valid credentials, either by restoring from the saved credentials
 # files or intitiating an OAuth2 authorization. If authorization is required,
@@ -50,18 +54,15 @@ def authorize
 end
 
 # Initialize the API
-service = Google::Apis::SheetsV4::SheetsService.new
-service.client_options.application_name = APPLICATION_NAME
-service.authorization = authorize
+@service = Google::Apis::SheetsV4::SheetsService.new
+@service.client_options.application_name = APPLICATION_NAME
+@service.authorization = authorize
 
 # Prints the names and majors of students in a sample spreadsheet:
 # https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
 spreadsheet_id = "1pbdFsQR8sfdoPJMTA_RWUuSN_BADZgppb_x4mgRaD7E"
-range = "D3"
-binding.irb
-response = service.get_spreadsheet_values(spreadsheet_id, range)
-puts "Name, Major:"
-puts "No data found." if response.values.empty?
+range = "A1:A1500"
+response = @service.get_spreadsheet_values(spreadsheet_id, range)
 # response.values.each do |row|
 #     # Print columns A and E, which correspond to indices 0 and 4.
 #     puts "#{row[0]}, #{row[4]}"
@@ -81,3 +82,108 @@ puts "No data found." if response.values.empty?
 #     # Print columns A and E, which correspond to indices 0 and 4.
 #     puts "#{row[0]}, #{row[4]}"
 # end
+
+# value_range = Google::Apis::SheetsV4::ValueRange.new
+# value_range.values = [
+#   # major_dimension = ROWS なので、配列1つが行のデータ
+#   # major_dimension = COLUMNS だと、列のデータになる
+#   [
+#     "A2に入る値"
+#   ]
+# ]
+# response = @service.update_spreadsheet_value(spreadsheet_id, range, value_range, value_input_option: "RAW")
+
+# def stanby_google_sheets
+#   service = Google::Apis::SheetsV4::SheetsService.new
+#   service.client_options.application_name = APPLICATION_NAME
+#   service.authorization = authorize
+
+#   range = "A1:A500"
+#   response = service.get_spreadsheet_values(spreadsheet_id, range)
+#   exist_raw = response.values.size
+
+#   # Prints the names and majors of students in a sample spreadsheet:
+#   # https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+#   spreadsheet_id = "1pbdFsQR8sfdoPJMTA_RWUuSN_BADZgppb_x4mgRaD7E"
+#   range = "A#{exist_raw + 1}"
+#   response = service.get_spreadsheet_values(spreadsheet_id, range)
+#   puts "Name, Major:"
+#   puts "No data found." if response.values.empty?
+#   value_range = Google::Apis::SheetsV4::ValueRange.new
+#   value_range.values = [
+#     # major_dimension = ROWS なので、配列1つが行のデータ
+#     # major_dimension = COLUMNS だと、列のデータになる
+#     [
+#       "A2に入る値"
+#     ]
+#   ]
+#   response = service.update_spreadsheet_value(spreadsheet_id, range, value_range, value_input_option: "RAW")
+# end
+
+# b = [1,2,3]
+# c = [2,3,4,5]
+# list = []
+# b.each do |_b|
+#   c.each do |ary|
+#     list << ary unless b.include?(ary)
+#   end
+# end
+# c.each do |ary|
+#   list << ary unless b.include?(ary)
+# end
+# response = @service.get_spreadsheet_values(spreadsheet_id, "A1:" + range)
+
+# list_existing_data = []
+# response.values.each do |re|
+#   list_existing_data << re[0].to_s
+# end
+
+def input_info_into_spreadsheet(scraped_information_list)
+  list_spreadsheet_data = get_existing_data_from_spreadsheet
+  list_additional_data_without_duplicates = check_for_duplicates(scraped_information_list, list_spreadsheet_data)
+  input_data_to_spreadsheet(list_additional_data_without_duplicates)
+end
+
+
+def get_existing_data_from_spreadsheet
+  @spreadsheet_id = "1pbdFsQR8sfdoPJMTA_RWUuSN_BADZgppb_x4mgRaD7E"
+  @range = "A1:A1500"
+  @response = @service.get_spreadsheet_values(@spreadsheet_id, @range)
+  list_existing_data = []
+  @response.values = [["underfind for nilが起きない用", "a"]] if @response.values.nil?
+  @response.values.each do |re|
+    list_existing_data << re[0].to_s
+  end
+  list_existing_data
+end
+
+def check_for_duplicates(scraped_information_list, list_existing_data)
+  list_additional_data_without_duplicates = []
+  scraped_information_list.each do |ary|
+    list_additional_data_without_duplicates << ary unless list_existing_data.include?(ary[0])
+  end
+  list_additional_data_without_duplicates
+end
+
+def input_data_to_spreadsheet(list_additional_data_without_duplicates)
+  p "追加分" + list_additional_data_without_duplicates.size.to_s + "社"
+  # response = service.get_spreadsheet_values(spreadsheet_id, "A1:" + range)
+  list_additional_data_without_duplicates.each.with_index(1) do |add_data, index|
+    sleep(1)
+    value_range = Google::Apis::SheetsV4::ValueRange.new
+    value_range.values = [
+      # major_dimension = ROWS なので、配列1つが行のデータ
+      # major_dimension = COLUMNS だと、列のデータになる
+      [
+        add_data[0],
+        add_data[1][0],
+        add_data[1][1],
+        add_data[1][2],
+        'マイナビ',
+        Time.now
+      ]
+    ]
+    raw_to_input = "A#{@response.values.size + index}:F#{@response.values.size + index}"
+    @service.update_spreadsheet_value(@spreadsheet_id, raw_to_input, value_range, value_input_option: "RAW")
+  end
+end
