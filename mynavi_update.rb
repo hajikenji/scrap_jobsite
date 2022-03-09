@@ -65,7 +65,7 @@ employment_status_list = []
 # 正社員
 employment_status_list << 'e01'
 # 契約社員
-employment_status_list << 'e02'
+# employment_status_list << 'e02'
 # 業務委託
 # employment_status_list << 'e03'
 # 人材バンク登録
@@ -76,9 +76,9 @@ employment_status_list << 'e02'
 ## こだわり選択(複数選択OK)
 special_list = []
 # 職種未経験OK
-special_list << 'pa1'
+# special_list << 'pa1'
 # 業種未経験OK
-special_list << 'pa2'
+# special_list << 'pa2'
 # 上場企業
 # special_list << 'pa3'
 # マネジャー採用
@@ -91,7 +91,7 @@ keyword_list =[]
 ## 詳しい条件(複数選択OK)
 detailed_list = []
 # 学歴不問
-detailed_list << 'f120'
+# detailed_list << 'f120'
 # 第二新卒歓迎
 detailed_list << 'f210'
 # 業界経験者優遇
@@ -100,7 +100,7 @@ detailed_list << 'f210'
 ## 従業員数(以上と以下の組み合わせなら複数選択OK 以下アンド以下はバグる)
 employ_above_list =[]
 # 10名以上
-employ_above_list << 'emin0010'
+# employ_above_list << 'emin0010'
 # 50名以上
 # employ_above_list << 'emin0050'
 # 100名以上
@@ -115,20 +115,20 @@ employ_below_list =[]
 # 10名以下
 # employ_below_list << 'emax0010'
 # 50名以下
-# employ_below_list << 'emax0050'
+employ_below_list << 'emax0050'
 # 100名以下
 # employ_below_list << 'emax0100'
 # 300名以下
 # employ_below_list << 'emax0300'
 # 1000名以下
-employ_below_list << 'emax1000'
+# employ_below_list << 'emax1000'
 # 5000名以下
-# employ_below_list << 'emax5000'
+employ_below_list << 'emax5000'
 
 ## 売上高(以上と以下の組み合わせなら複数選択OK 以下アンド以下はバグる)
 sales_above_list =[]
 # 100万以上
-sales_above_list << 'smin001mi'
+# sales_above_list << 'smin001mi'
 # 500万以上
 # sales_above_list << 'smin005mi'
 # 1000万以上
@@ -163,7 +163,7 @@ sales_below_list =[]
 # 1000億以下
 # sales_below_list << 'smax100bi'
 # 5000億以下
-sales_below_list << 'smax500bi'
+# sales_below_list << 'smax500bi'
 
 # 他条件は作成者に要相談か自力でお願いします
 lojic_list = []

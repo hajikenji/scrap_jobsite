@@ -1,25 +1,6 @@
 require 'nokogiri'
 require 'open-uri'
 
-# url = 'https://tenshoku.mynavi.jp/engineer/list/p27/o16210+o16215+o16220/e01/?soff=1&ags=0'
-# doc = Nokogiri::HTML(URI.open(url))
-
-# mynavi = doc.xpath('//*[@id="content"]/div[3]/section[1]/div[1]/div[4]')
-# # mynavi.each do |element|
-# #   p element.attributes['href']
-# # end
-# details_job_mynavi = mynavi.children[4].children[1].attributes['href'].value
-# mynavi_root_url = 'https://tenshoku.mynavi.jp'
-# # doc1.xpath('')
-
-# url = mynavi_root_url + details_job_mynavi
-# if url.include?('msg')
-#   details_job_mynavi = doc2.xpath('/html/body/div[1]/form/div[1]/nav[1]/ul/li[1]/a')[0].attributes['href'].value
-#   url = mynavi_root_url + details_job_mynavi
-# end
-# details = Nokogiri::HTML(URI.open(url))
-# company_name = details.xpath('/html/body/div[1]/div[5]/div[2]/div/div[2]/div[2]/div[2]/h1/span[2]').text
-
 def scrap_mynavi(lojic_list)
   url_based_on_logic = search_logic(lojic_list)
   list_collect_links = collect_links_to_each_page(url_based_on_logic)
@@ -43,9 +24,6 @@ def search_logic(lojic_list)
     end
   end
   url = @logic_url + '?soff=1&ags=0'
-  # url = 'https://tenshoku.mynavi.jp/engineer/list/p27/o16210+o16215+o16220/e01/?soff=1&ags=0'
-  # 下記URLはデバッグ用
-  # url = 'https://tenshoku.mynavi.jp/engineer/list/p27/o16210+o16215+o16220/e02/?soff=1&ags=0'
   Nokogiri::HTML(URI.open(url))
 end
 
@@ -73,25 +51,6 @@ def collect_links_to_each_page(url_based_on_logic)
   end
   list_collect_links
 end
-# doc.xpath('//a[@class="link entry_click entry3"]').each do |oc|
-#   p oc.attributes["href"].value
-# end
-
-# 300.times do |page_number|
-#   sleep(2)
-#   page_number = page_number + 2
-#   next_page = url_based_on_logic.xpath("//*[@id='content']/div[3]/div[4]/ul/li[#{page_number}]/a")
-#   break if next_page.empty?
-#   url = 'https://tenshoku.mynavi.jp' + next_page[0].attributes["href"].value
-#   page = Nokogiri::HTML(URI.open(url))
-#   page.xpath('//a[@class="link entry_click entry3"]').each do |next_url|
-#     next_url = next_url.attributes["href"].value
-#     next_url.sub!(/msg./, '') if next_url.include?('msg')
-#     list_collect_links << 'https://tenshoku.mynavi.jp' + next_url
-#   end
-# end
-# b = doc.xpath("//*[@id='content']/div[3]/div[4]/ul/li[#{page_number}]/a")
-# b[0].attributes["href"].value
 
 def collect_info_from_each_page(list_collect_links)
   hash_info_about_company = {}
@@ -125,22 +84,3 @@ end
 # list_collect_links.each do |ary|
 #   h << ary unless list.include?(ary)
 # end
-
-# 保管
-# mynavi = doc.xpath('//*[@id="content"]/div[3]/section[1]/div[1]/div[4]')
-#   # mynavi.each do |element|
-#   #   p element.attributes['href']
-#   # end
-#   details_job_mynavi = mynavi.children[4].children[1].attributes['href'].value
-#   mynavi_root_url = 'https://tenshoku.mynavi.jp'
-#   # doc1.xpath('')
-
-#   url = mynavi_root_url + details_job_mynavi
-#   doc = Nokogiri::HTML(URI.open(url))
-#   if url.include?('msg')
-#     details_job_mynavi = doc.xpath('/html/body/div[1]/form/div[1]/nav[1]/ul/li[1]/a')[0].attributes['href'].value
-#     url = mynavi_root_url + details_job_mynavi
-#   end
-#   sleep(2)
-#   details = Nokogiri::HTML(URI.open(url))
-#   @company_name = details.xpath('/html/body/div[1]/div[5]/div[2]/div/div[2]/div[2]/div[2]/h1/span[2]').text
