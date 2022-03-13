@@ -49,7 +49,7 @@ end
 
 def get_existing_data_from_spreadsheet
   @spreadsheet_id = ENV['SHEET_ID']
-  @range = "A1:A1500"
+  @range = "A1:A2000"
   @response = @service.get_spreadsheet_values(@spreadsheet_id, @range)
   list_existing_data = []
   @response.values = [["underfind for nilが起きない用", "a"]] if @response.values.nil?
@@ -73,6 +73,10 @@ def input_data_to_spreadsheet(list_additional_data_without_duplicates)
   list_additional_data_without_duplicates.each.with_index(1) do |add_data, index|
     sleep(1)
     value_range = Google::Apis::SheetsV4::ValueRange.new
+
+    site_name = 'マイナビ' if add_data[1][0].include?('mynavi')
+    site_name = 'doda' if add_data[1][0].include?('doda.jp')
+
     value_range.values = [
       # major_dimension = ROWS なので、配列1つが行のデータ
       # major_dimension = COLUMNS だと、列のデータになる
@@ -81,7 +85,7 @@ def input_data_to_spreadsheet(list_additional_data_without_duplicates)
         add_data[1][0],
         add_data[1][1],
         add_data[1][2],
-        'マイナビ',
+        site_name,
         Time.now
       ]
     ]

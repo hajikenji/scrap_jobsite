@@ -1,4 +1,4 @@
-require './suk.rb'
+require './mynavi_scrap.rb'
 require './sheets.rb'
 
 ## 検索条件コメントアウト集 必要ならコメントアウトを外し、不要なら付けたままにする。例えば、勤務地は全てコメントアウトなら全国OKになる
@@ -115,7 +115,7 @@ employ_below_list =[]
 # 10名以下
 # employ_below_list << 'emax0010'
 # 50名以下
-employ_below_list << 'emax0050'
+# employ_below_list << 'emax0050'
 # 100名以下
 # employ_below_list << 'emax0100'
 # 300名以下
