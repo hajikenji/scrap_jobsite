@@ -1,6 +1,8 @@
 require 'dotenv'
 Dotenv.load
 
+require "google_drive"
+
 require "bundler/setup"
 require "google/apis/sheets_v4"
 require "googleauth"
@@ -36,9 +38,11 @@ def authorize
 end
 
 # Initialize the API
-@service = Google::Apis::SheetsV4::SheetsService.new
-@service.client_options.application_name = APPLICATION_NAME
-@service.authorization = authorize
+# @service = Google::Apis::SheetsV4::SheetsService.new
+# @service.client_options.application_name = APPLICATION_NAME
+# @service.authorization = authorize
+@service = GoogleDrive::Session.from_service_account_key("./credentials.json")
+
 
 def input_info_into_spreadsheet(scraped_information_list)
   list_spreadsheet_data = get_existing_data_from_spreadsheet
@@ -48,14 +52,21 @@ end
 
 
 def get_existing_data_from_spreadsheet
-  @spreadsheet_id = ENV['SHEET_ID']
-  @range = "A1:A2000"
-  @response = @service.get_spreadsheet_values(@spreadsheet_id, @range)
+  # @spreadsheet_id = ENV['SHEET_ID_service']
+  # @range = "A1:A2000"
+  # @response = @service.get_spreadsheet_values(@spreadsheet_id, @range)
+  # list_existing_data = []
+  # @response.values = [["underfind for nilが起きない用", "a"]] if @response.values.nil?
+  # @response.values.each do |re|
+  #   list_existing_data << re[0].to_s
+  # end
+  ws = @service.spreadsheet_by_key(ENV['SHEET_ID_service'])
+  ws = ws.worksheets[0]
   list_existing_data = []
-  @response.values = [["underfind for nilが起きない用", "a"]] if @response.values.nil?
-  @response.values.each do |re|
-    list_existing_data << re[0].to_s
+  (1..ws.num_rows).each do |row|
+    list_existing_data << ws[row, 1]
   end
+  @ws = ws
   list_existing_data
 end
 
@@ -72,24 +83,15 @@ def input_data_to_spreadsheet(list_additional_data_without_duplicates)
   # response = service.get_spreadsheet_values(spreadsheet_id, "A1:" + range)
   list_additional_data_without_duplicates.each.with_index(1) do |add_data, index|
     sleep(1)
-    value_range = Google::Apis::SheetsV4::ValueRange.new
 
     site_name = 'マイナビ' if add_data[1][0].include?('mynavi')
     site_name = 'doda' if add_data[1][0].include?('doda.jp')
 
-    value_range.values = [
-      # major_dimension = ROWS なので、配列1つが行のデータ
-      # major_dimension = COLUMNS だと、列のデータになる
-      [
-        add_data[0],
-        add_data[1][0],
-        add_data[1][1],
-        add_data[1][2],
-        site_name,
-        Time.now
-      ]
-    ]
-    raw_to_input = "A#{@response.values.size + index}:F#{@response.values.size + index}"
-    @service.update_spreadsheet_value(@spreadsheet_id, raw_to_input, value_range, value_input_option: "RAW")
+    @ws[@ws.num_rows + 1, 1] = add_data[0]
+    add_data[1].push(site_name, Time.now)
+    list = []
+    list << add_data[1]
+    @ws.update_cells(@ws.num_rows, 2, list)
+    @ws.save
   end
 end
