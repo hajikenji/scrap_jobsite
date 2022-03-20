@@ -83,9 +83,11 @@ def input_data_to_spreadsheet(list_additional_data_without_duplicates)
   # response = service.get_spreadsheet_values(spreadsheet_id, "A1:" + range)
   list_additional_data_without_duplicates.each.with_index(1) do |add_data, index|
     sleep(1)
+    p index
 
     site_name = 'マイナビ' if add_data[1][0].include?('mynavi')
     site_name = 'doda' if add_data[1][0].include?('doda.jp')
+    site_name = 'green' if add_data[1][0].include?('green-japan')
 
     @ws[@ws.num_rows + 1, 1] = add_data[0]
     add_data[1].push(site_name, Time.now)

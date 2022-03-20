@@ -51,13 +51,15 @@ end
 
 def collect_info_from_each_page(list_collect_links)
   hash_info_about_company = {}
-  list_collect_links.each do |link|
-    sleep(1)
+  list_collect_links.each_with_index do |link, index|
+    p index
+    sleep(1.5)
     @session.navigate.to link
     if @session.find_element(:class, 'switch_display').text.include?('Pick')
       link = @session.find_element(:class, '_canonicalUrl')['href']
       @session.navigate.to link
     end
+    p link
     company_name = @session.find_element(:class, 'head_title').text.slice(/.*株式会社.*/)
     employees = @session.find_element(:xpath, '//*[@id="shtTabContent2"]').text.slice(/従業員数.*/)
     amount_of_sales = @session.find_element(:xpath, '//*[@id="shtTabContent2"]').text.slice(/売上高.*/)
